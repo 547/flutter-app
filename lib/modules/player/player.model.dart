@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/modules/player/player.const.dart';
 import 'package:flutter_app/origin_sdk/origin_types.dart';
 import 'package:flutter_app/origin_sdk/service.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _storageKeyCurrent = 'player_current';
@@ -284,7 +285,7 @@ class PlayerModel extends ChangeNotifier {
   _play(String? id) async {
     if (id != null) {
       MusicUrl musicUrl = await service.getMusicUrl(id);
-      audio.setUrl(musicUrl.url, headers: musicUrl.headers);
+      audio.setAudioSource(music2source(musicUrl, current!));
     }
 
     audio.play();
@@ -329,16 +330,17 @@ class PlayerModel extends ChangeNotifier {
     String? c = localStorage.getString(_storageKeyCurrent);
     if (c != null && c.isNotEmpty) {
       var data = jsonDecode(c) as Map<String, dynamic>;
+      String id = data['id'];
       current = MusicItem(
-        id: data['id'],
+        id: id,
         name: data['name'],
         cover: data['cover'],
         author: data['author'],
         duration: data['duration'],
         origin: OriginType.getByValue(data['origin']),
       );
-      service.getMusicUrl(current!.id).then((musicUrl) {
-        audio.setUrl(musicUrl.url, headers: musicUrl.headers);
+      service.getMusicUrl(id).then((musicUrl) {
+        audio.setAudioSource(music2source(musicUrl, current!));
       });
     }
     String? m = localStorage.getString(_storageKeyPlayerMode);
@@ -372,4 +374,16 @@ class PlayerModel extends ChangeNotifier {
 
     notifyListeners();
   }
+}
+
+audioplayers.AudioSource music2source(MusicUrl musicUrl, MusicItem music) {
+  return audioplayers.AudioSource.uri(
+    Uri.parse(musicUrl.url),
+    headers: musicUrl.headers,
+    tag: MediaItem(
+      id: music.id,
+      title: music.name,
+      artUri: Uri.parse(music.cover),
+    ),
+  );
 }

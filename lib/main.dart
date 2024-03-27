@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/modules/home/home.dart';
 import 'package:flutter_app/modules/music_order/model.dart';
 import 'package:flutter_app/modules/player/player.model.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 
 // toast 初始化
@@ -21,7 +22,12 @@ ThemeData theme = ThemeData(
   primaryColor: primaryColor,
 );
 
-void main() {
+void main() async {
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
+    androidNotificationChannelName: 'Audio playback',
+    androidNotificationOngoing: true,
+  );
   runApp(
     MultiProvider(
       providers: [
