@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:just_audio/just_audio.dart' as audioplayers;
+import 'package:http/http.dart' as http;
+import 'package:just_audio/just_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/modules/player/player.const.dart';
 import 'package:flutter_app/origin_sdk/origin_types.dart';
@@ -19,7 +20,7 @@ class PlayerModel extends ChangeNotifier {
   // 计时器
   Timer? _timer;
   // 播放器实例
-  final audio = audioplayers.AudioPlayer();
+  final audio = AudioPlayer();
   // 当前歌曲
   MusicItem? current;
   // 歌曲是否加载
@@ -45,17 +46,17 @@ class PlayerModel extends ChangeNotifier {
         _setStatus(PlayerStatus.pause);
       }
       // var Function closeLoading = () {};
-      if (state.processingState == audioplayers.ProcessingState.loading) {
+      if (state.processingState == ProcessingState.loading) {
         // closeLoading = BotToast.showLoading();
         isLoading = true;
         notifyListeners();
       }
-      if (state.processingState == audioplayers.ProcessingState.ready) {
+      if (state.processingState == ProcessingState.ready) {
         // closeLoading();
         isLoading = false;
         notifyListeners();
       }
-      if (state.processingState == audioplayers.ProcessingState.completed) {
+      if (state.processingState == ProcessingState.completed) {
         endNext();
       }
     });
@@ -284,8 +285,7 @@ class PlayerModel extends ChangeNotifier {
 
   _play(String? id) async {
     if (id != null) {
-      MusicUrl musicUrl = await service.getMusicUrl(id);
-      audio.setAudioSource(music2source(musicUrl, current!));
+      audio.setAudioSource(CustomAudioSource(music: current!));
     }
 
     audio.play();
@@ -339,9 +339,7 @@ class PlayerModel extends ChangeNotifier {
         duration: data['duration'],
         origin: OriginType.getByValue(data['origin']),
       );
-      service.getMusicUrl(id).then((musicUrl) {
-        audio.setAudioSource(music2source(musicUrl, current!));
-      });
+      audio.setAudioSource(CustomAudioSource(music: current!));
     }
     String? m = localStorage.getString(_storageKeyPlayerMode);
     if (m != null && m.isNotEmpty) {
@@ -376,14 +374,76 @@ class PlayerModel extends ChangeNotifier {
   }
 }
 
-audioplayers.AudioSource music2source(MusicUrl musicUrl, MusicItem music) {
-  return audioplayers.AudioSource.uri(
-    Uri.parse(musicUrl.url),
-    headers: musicUrl.headers,
-    tag: MediaItem(
+class CustomAudioSource extends StreamAudioSource {
+  final List<int> _bytes = [];
+  int _sourceLength = 0;
+  String _contentType = 'video/mp4';
+  final MusicItem music;
+  bool _isInit = false;
+  @override
+  MediaItem get tag {
+    return MediaItem(
       id: music.id,
       title: music.name,
       artUri: Uri.parse(music.cover),
-    ),
-  );
+    );
+  }
+
+  static Future<http.StreamedResponse> getMusicStream(
+    MusicItem music,
+    Function(List<int> data) callback,
+  ) {
+    // print('getMusicStream');
+    final completer = Completer<http.StreamedResponse>();
+
+    service.getMusicUrl(music.id).then((musicUrl) {
+      var request = http.Request('GET', Uri.parse(musicUrl.url));
+      request.headers.addAll(musicUrl.headers ?? {});
+      http.Client client = http.Client();
+      // StreamSubscription videoStream;
+      client.send(request).then((response) {
+        var isStart = false;
+        response.stream.listen((List<int> data) {
+          callback(data);
+          if (!isStart) {
+            completer.complete(response);
+            isStart = true;
+          }
+          // TODO 后续加个缓存方法
+        });
+      }).catchError((error) {
+        completer.completeError(error);
+      });
+    }).catchError((error) {
+      completer.completeError(error);
+    });
+    return completer.future;
+  }
+
+  CustomAudioSource({required this.music});
+
+  _init() async {
+    if (_isInit) return;
+    var resp = await CustomAudioSource.getMusicStream(music, (List<int> data) {
+      _bytes.addAll(data);
+    });
+    _sourceLength = resp.contentLength ?? 0;
+    _contentType = resp.headers['content-type'] ?? 'video/mp4';
+    _isInit = true;
+  }
+
+  @override
+  Future<StreamAudioResponse> request([int? start, int? end]) async {
+    await _init();
+    start ??= 0;
+    end ??= _bytes.length;
+
+    return StreamAudioResponse(
+      sourceLength: _sourceLength,
+      contentLength: end - start,
+      offset: start,
+      stream: Stream.value(_bytes.sublist(start, end)),
+      contentType: _contentType,
+    );
+  }
 }
