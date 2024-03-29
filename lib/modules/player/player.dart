@@ -84,7 +84,7 @@ class PlayButton extends StatelessWidget {
 
     return Consumer<PlayerModel>(
       builder: (context, player, child) {
-        if (player.playerStatus == PlayerStatus.play) {
+        if (player.isPlaying) {
           return IconButton(
             color: primaryColor,
             iconSize: size,
@@ -103,7 +103,7 @@ class PlayButton extends StatelessWidget {
             Icons.play_circle_filled,
           ),
           onPressed: () {
-            player.play(null);
+            player.play();
           },
         );
       },

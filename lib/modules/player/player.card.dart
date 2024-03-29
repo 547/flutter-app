@@ -1,3 +1,4 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/modules/player/player.dart';
 import 'package:flutter_app/modules/player/player.model.dart';
@@ -48,21 +49,38 @@ class PlayerCard extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
               ),
+              const SizedBox(height: 10),
               // 下载，添加到歌单
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    iconSize: 30,
-                    onPressed: () {},
-                    icon: const Icon(Icons.download),
-                  ),
-                  IconButton(
-                    iconSize: 40,
-                    onPressed: () {},
-                    icon: const Icon(Icons.playlist_add),
-                  ),
-                ],
+              SizedBox(
+                height: 50,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      iconSize: 30,
+                      onPressed: () {},
+                      icon: const Icon(Icons.download),
+                    ),
+                    IconButton(
+                      iconSize: 30,
+                      onPressed: () async {
+                        final res = await player.toggleRandom();
+                        BotToast.showText(text: '已${res ? '开启' : '关闭'}随机播放');
+                      },
+                      icon: Icon(
+                        Icons.shuffle,
+                        color: player.enabledRandom
+                            ? Theme.of(context).colorScheme.primary
+                            : null,
+                      ),
+                    ),
+                    IconButton(
+                      iconSize: 30,
+                      onPressed: () {},
+                      icon: const Icon(Icons.playlist_add),
+                    ),
+                  ],
+                ),
               ),
               // 进度
               const PlayerProgress(),

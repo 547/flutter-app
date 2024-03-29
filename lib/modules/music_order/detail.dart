@@ -44,7 +44,7 @@ class _MusicOrderDetailState extends State<MusicOrderDetail> {
       SheetItem(
         title: const Text('播放'),
         onPressed: () {
-          Provider.of<PlayerModel>(context, listen: false).play(item);
+          Provider.of<PlayerModel>(context, listen: false).play(music: item);
         },
       ),
       SheetItem(
@@ -97,7 +97,7 @@ class _MusicOrderDetailState extends State<MusicOrderDetail> {
                   onPressed: () {
                     player.clearPlayerList();
                     player.addPlayerList(musicOrder.musicList);
-                    player.play(musicOrder.musicList[0]);
+                    player.play(music: musicOrder.musicList[0]);
                   },
                 ),
                 SheetItem(
@@ -133,7 +133,9 @@ class _MusicOrderDetailState extends State<MusicOrderDetail> {
               title: Text(item.name),
               subtitle: TextTags(tags: tags),
               onTap: () {
-                Provider.of<PlayerModel>(context, listen: false).play(item);
+                Provider.of<PlayerModel>(context, listen: false).play(
+                  music: item,
+                );
               },
               trailing: InkWell(
                 borderRadius: BorderRadius.circular(4.0),

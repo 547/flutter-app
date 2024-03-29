@@ -142,7 +142,7 @@ class _SearchViewState extends State<SearchView> {
                   );
                 } else {
                   player.play(
-                    MusicItem(
+                    music: MusicItem(
                       id: detail.id,
                       cover: detail.cover,
                       name: detail.name,

@@ -97,7 +97,7 @@ class PlayerList extends StatelessWidget {
                             ),
                             onTap: () {
                               Provider.of<PlayerModel>(context, listen: false)
-                                  .play(item);
+                                  .play(music: item);
                             },
                             onLongPress: () {
                               showItemSheet(context, item);
@@ -129,7 +129,7 @@ void showItemSheet(BuildContext context, MusicItem data) {
     SheetItem(
         title: const Text('播放'),
         onPressed: () {
-          Provider.of<PlayerModel>(context, listen: false).play(data);
+          Provider.of<PlayerModel>(context, listen: false).play(music: data);
           Navigator.of(context).pop();
         }),
     SheetItem(
