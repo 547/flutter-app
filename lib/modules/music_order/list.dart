@@ -310,7 +310,7 @@ class _MusicOrderListItemViewState extends State<_MusicOrderListItemView> {
             ),
             title: Text(item.name),
             subtitle: item.desc.isNotEmpty ? Text(item.desc) : null,
-            minTileHeight: 60,
+            // minTileHeight: 60,
             trailing: widget.collectModalStyle == true
                 ? null
                 : InkWell(

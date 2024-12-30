@@ -35,7 +35,7 @@ void openBottomSheet(BuildContext context, List<SheetItem> items) {
                 if (e.hidden == true) return Container();
 
                 return ListTile(
-                  minTileHeight: itemHeight,
+                  // minTileHeight: itemHeight,
                   leading: e.icon,
                   title: e.title,
                   onTap: e.onPressed != null

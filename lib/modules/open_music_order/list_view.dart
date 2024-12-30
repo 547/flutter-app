@@ -112,7 +112,7 @@ class _OpenMusicOrderListViewState extends State<OpenMusicOrderListView> {
             children: store.dataList.map((item) {
               return ListTile(
                 title: Text(item.name),
-                minTileHeight: _coverSize + 20,
+                // minTileHeight: _coverSize + 20,
                 leading: SizedBox(
                   width: _coverSize,
                   height: _coverSize,

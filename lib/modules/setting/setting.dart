@@ -20,7 +20,7 @@ class SettingView extends StatelessWidget {
           ListTile(
             title: const Text('歌单源设置'),
             leading: const Icon(Icons.trip_origin_outlined),
-            minTileHeight: 60,
+            // minTileHeight: 60,
             onTap: () {
               navigator.push(
                 MaterialPageRoute(
@@ -35,7 +35,7 @@ class SettingView extends StatelessWidget {
             height: 10,
           ),
           const ListTile(
-            minTileHeight: 30,
+            // minTileHeight: 30,
             title: Text(
               "其他配置",
               style: TextStyle(
