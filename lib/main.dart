@@ -38,11 +38,11 @@ void main() async {
   }
   WidgetsFlutterBinding.ensureInitialized();
   JustAudioMediaKit.ensureInitialized(
-    iOS: false,
-    android: false,
+    iOS: true,
+    android: true,
     windows: true,
     linux: true,
-    macOS: false,
+    macOS: true,
   );
   final playerService = await AudioService.init(
     builder: () => _playerHandler,
